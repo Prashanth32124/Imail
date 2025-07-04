@@ -35,7 +35,7 @@ function Signup() {
     }
 
     try {
-      const res = await axios.post("https://daisy-rune-mandevilla.glitch.me/signup", {
+      const res = await axios.post("https://mailbackend-self.vercel.app/signup", {
         username,
         password12,
       });

@@ -9,13 +9,17 @@ function Compose() {
   const [body, setBody] = useState('');
 
   const handleEmailValidation = async () => {
-    try {
-      const res = await api.post('/check-email', { email: todata });
-      setValidationMessage(res.data.message);
-    } catch (err) {
-      setValidationMessage(err.response?.data?.message || "❌ Error");
-    }
-  };
+  try {
+    console.log("Validating:", todata); // 👈 Check the input
+    const res = await api.post('/check-email', { email: todata });
+    console.log("Response:", res.data); // 👈 Check the response
+    setValidationMessage(res.data.message);
+  } catch (err) {
+    console.log("Error:", err.response?.data); // 👈 Inspect error
+    setValidationMessage(err.response?.data?.message || "❌ Error");
+  }
+};
+
 
   const handleSend = async () => {
     const from = localStorage.getItem("username") || "Anonymous";

@@ -27,7 +27,8 @@ function Signin() {
         localStorage.setItem("username", username);
         setUsername('');
         setPassword('');
-        navigate("/homepage");
+        // Send username to Homepage via route state
+        navigate("/homepage", { state: { username } });
       } else {
         setError(res.data.message || "Invalid credentials. Please try again.");
       }
@@ -55,7 +56,6 @@ function Signin() {
           value={username}
           onChange={e => setUsername(e.target.value)}
           disabled={loading}
-          aria-label="Username"
           required
         />
         <br />
@@ -65,7 +65,6 @@ function Signin() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           disabled={loading}
-          aria-label="Password"
           required
         />
         <br />

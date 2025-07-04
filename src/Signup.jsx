@@ -5,7 +5,10 @@ import axios from 'axios';
 function Signup() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
-  const [password12, setPassword] = useState('');
+  const [password, setPassword] = useState(''); // Renamed from password12 for consistency
+  const [error, setError] = useState(''); // Added error state for better UX
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://mailbackend-self.vercel.app";
 
   const validateUsername = (user) => {
     if (!user.endsWith('@imail.com')) return false;
@@ -24,26 +27,28 @@ function Signup() {
   };
 
   const handleSignup = async () => {
+    setError(''); // Clear previous errors
+
     if (!validateUsername(username)) {
-      alert("❌ Username must be 6-12 characters, alphanumeric, and end with @imail.com");
+      setError("Username must be 6-12 characters, alphanumeric, and end with @imail.com");
       return;
     }
 
-    if (!validatePassword(password12)) {
-      alert("❌ Password must be 6-12 characters and include at least one special character");
+    if (!validatePassword(password)) { // Using 'password'
+      setError("Password must be 6-12 characters and include at least one special character");
       return;
     }
 
     try {
-      const res = await axios.post("https://mailbackend-self.vercel.app/signup", {
+      const res = await axios.post(`${API_BASE_URL}/signup`, { // Use API_BASE_URL
         username,
-        password12,
+        password, // Sending 'password'
       });
 
-      alert(res.data.message);
+      setError(res.data.message); // Use error state for success message too, or separate state
       navigate("/signin");
     } catch (err) {
-      alert(err.response?.data?.message || "❌ Signup failed");
+      setError(err.response?.data?.message || "Signup failed");
     }
   };
 
@@ -64,12 +69,14 @@ function Signup() {
       <input
         id="password"
         type="password"
-        value={password12}
+        value={password} // Using 'password'
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Enter a strong password"
       /><br />
 
       <button onClick={handleSignup}>Signup</button>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error/success */}
 
       <p>Already have an account?</p>
       <button onClick={() => navigate('/signin')}>Signin</button>

@@ -14,7 +14,7 @@ function Inbox() {
         const res = await api.post("/inbox", { username });
         setMessages(res.data.messages);
       } catch (err) {
-        console.error("❌ Inbox fetch error:", err);
+        console.error("Inbox fetch error:", err);
       } finally {
         setLoading(false);
       }

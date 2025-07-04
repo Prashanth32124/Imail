@@ -1,6 +1,5 @@
-// ==== Compose.js ====
 import React, { useState } from 'react';
-import api from './api'; // Assuming this is correctly configured
+import api from './api';
 import './css/Compose.css';
 
 function Compose() {
@@ -10,7 +9,6 @@ function Compose() {
   const [body, setBody] = useState('');
 
   const handleEmailValidation = async () => {
-    // Trim whitespace from the input email
     const emailToValidate = todata.trim();
 
     if (!emailToValidate) {
@@ -18,34 +16,31 @@ function Compose() {
       return;
     }
 
-    console.log("Attempting to validate email:", emailToValidate); // 👈 Critical: Check the value *before* sending
-
     try {
       const res = await api.post('/check-email', { email: emailToValidate });
-      console.log("Validation API Response:", res.data); // 👈 Check the full response
       setValidationMessage(res.data.message);
     } catch (err) {
-      console.error("Validation API Error:", err); // Log the entire error object
-      console.error("Validation API Error Response Data:", err.response?.data); // Log the error response data
-      setValidationMessage(err.response?.data?.message || "❌ An unknown error occurred during validation.");
+      setValidationMessage(err.response?.data?.message || "An unknown error occurred during validation.");
     }
   };
 
   const handleSend = async () => {
     const from = localStorage.getItem("username") || "Anonymous";
-    // Add basic validation before sending
+
     if (!todata || !subject || !body) {
-      alert("Please fill in all fields (To, Subject, Body).");
+      setValidationMessage("Please fill in all fields (To, Subject, Body)."); // Use validation message state
       return;
     }
 
     try {
-      const res = await api.post('/send-mail', { from, to: todata.trim(), subject, body }); // Trim 'to' here too
-      alert(res.data.message);
-      setTodata(''); setSubject(''); setBody(''); setValidationMessage('');
+      const res = await api.post('/send-mail', { from, to: todata.trim(), subject, body });
+      setValidationMessage(res.data.message); // Use validation message state for success too
+      setTodata('');
+      setSubject('');
+      setBody('');
+      setValidationMessage('');
     } catch (err) {
-      console.error("Send Mail API Error:", err);
-      alert(err.response?.data?.message || "❌ Failed to send mail.");
+      setValidationMessage(err.response?.data?.message || "Failed to send mail."); // Use validation message state for error
     }
   };
 
@@ -58,7 +53,7 @@ function Compose() {
         onChange={e => setTodata(e.target.value)}
       />
       <button onClick={handleEmailValidation}>Validate</button>
-      <p className="validation-message">{validationMessage}</p> {/* Add a class for styling */}
+      <p className="validation-message">{validationMessage}</p>
       <input
         placeholder="Subject"
         value={subject}

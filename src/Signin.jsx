@@ -4,45 +4,77 @@ import { useNavigate } from 'react-router-dom';
 
 function Signin() {
   const [username, setUsername] = useState('');
-  const [password12, setPassword12] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://mailbackend-self.vercel.app";
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    setError('');
+    setLoading(true);
+
     try {
-      const res = await axios.post("https://mailbackend-self.vercel.app//login", {
+      const res = await axios.post(`${API_BASE_URL}/login`, {
         username,
-        password12
+        password
       });
 
-      // Only proceed if login is successful
-      if (res.status === 200 && res.data.message.includes("Login successful")) {
+      if (res.status === 200 && res.data.message && res.data.message.includes("Login successful")) {
         localStorage.setItem("username", username);
-        alert(res.data.message);
+        setUsername('');
+        setPassword('');
         navigate("/homepage");
       } else {
-        alert("❌ Invalid credentials");
+        setError(res.data.message || "Invalid credentials. Please try again.");
       }
 
     } catch (err) {
-      alert(err.response?.data?.message || "❌ Login failed");
+      console.error("Login error:", err);
+      if (err.response) {
+        setError(err.response.data?.message || "Login failed. Please check your credentials.");
+      } else if (err.request) {
+        setError("No response from server. Please check your internet connection.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
       <h3>Login</h3>
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password12}
-        onChange={e => setPassword12(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+      <form onSubmit={handleLogin}>
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          disabled={loading}
+          aria-label="Username"
+          required
+        />
+        <br />
+        <input
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          disabled={loading}
+          aria-label="Password"
+          required
+        />
+        <br />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }
